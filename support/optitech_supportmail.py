@@ -11,7 +11,7 @@ def send_support_email(customer_name, customer_email, ticket_description, ticket
         print("❌ API-nyckel saknas.")
         return
 
-    print(f"🔐 API laddad: {api_key[:8]}...")
+    print("🔐 API-nyckel laddad.")
 
     sg = SendGridAPIClient(api_key=api_key)
 
