@@ -17,6 +17,17 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+# Säker konfiguration för produktion
+if os.environ.get('FLASK_ENV') != 'development':
+    app.config['DEBUG'] = False
+    app.config['TESTING'] = False
+
+# Konfigurera logging för säker felhantering
+import logging
+if not app.debug:
+    # I produktion, logga bara till fil eller systemlogg
+    logging.basicConfig(level=logging.ERROR)
+
 # Azure OpenAI konfiguration
 API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 ENDPOINT = "https://yazan-me7jxcy8-eastus2.cognitiveservices.azure.com/"
@@ -77,9 +88,13 @@ Annars - chatta bara normalt och hjälp kunden så gott du kan!"""
                 ai_reply = response.json()["choices"][0]["message"]["content"]
                 return ai_reply
             else:
-                return f"❌ Fel vid kommunikation med AI: {response.status_code}"
+                # Logga fel utan att exponera känslig information
+                app.logger.error(f"AI API error: {response.status_code}")
+                return "❌ AI-tjänsten är tillfälligt otillgänglig. Försök igen senare."
         except Exception as e:
-            return f"❌ Tekniskt fel: {str(e)}"
+            # Logga fel internt
+            app.logger.error(f"AI request error: {str(e)}")
+            return "❌ Tekniskt fel vid kommunikation med AI. Försök igen senare."
     
     def create_support_ticket(self, ticket_data):
         """Skapar supportärende och skickar e-post"""
@@ -433,9 +448,11 @@ def chat():
         return jsonify(response_data)
         
     except Exception as e:
+        # Log fel internt men visa inte känslig information till användaren
+        app.logger.error(f"Chat error: {str(e)}")
         return jsonify({
             'success': False,
-            'error': str(e)
+            'error': 'Ett tekniskt fel uppstod. Försök igen senare.'
         }), 500
 
 @app.route('/health')
@@ -448,4 +465,5 @@ def health():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

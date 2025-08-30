@@ -11,7 +11,8 @@ def send_support_email(customer_name, customer_email, ticket_description, ticket
         print("❌ API-nyckel saknas.")
         return
 
-    print(f"🔐 API laddad: {api_key[:8]}...")
+    # Logga bara att API-nyckel laddats, inte själva nyckeln
+    print("🔐 SendGrid API-nyckel laddad framgångsrikt")
 
     sg = SendGridAPIClient(api_key=api_key)
 
