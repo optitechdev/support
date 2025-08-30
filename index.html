@@ -530,8 +530,16 @@
             showLoading();
             
             try {
-                // Försök att använda Flask-backend om den finns
-                const response = await fetch('/chat', {
+                // Bestäm API-endpoint baserat på miljö
+                const isLocal = window.location.hostname === 'localhost' || 
+                               window.location.hostname === '127.0.0.1' ||
+                               window.location.hostname.includes('codespaces') ||
+                               window.location.hostname.includes('github.dev');
+                
+                const apiUrl = isLocal ? '/chat' : 'https://your-flask-server.herokuapp.com/chat';
+                
+                // Försök att använda Flask-backend
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -568,6 +576,7 @@
             } catch (error) {
                 // Fallback till simulerad AI om backend inte finns
                 hideLoading();
+                console.log('Använder simulerad AI:', error.message);
                 setTimeout(() => {
                     const aiResponse = simulateAIResponse(message);
                     addMessage("🤖 " + aiResponse + "\n\n💡 <em>Detta är en simulerad AI-respons. För fullständig support, kontakta support@optitech-sverige.se</em>");
