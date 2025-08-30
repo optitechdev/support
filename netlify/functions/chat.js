@@ -169,16 +169,25 @@ ${ticketData.beskrivning}
           };
 
           // Skicka båda e-posten
+          console.log('Attempting to send emails with SendGrid...');
           await Promise.all([
             sgMail.send(customerEmail),
             sgMail.send(adminEmail)
           ]);
 
+          console.log('Emails sent successfully');
           responseData.email_sent = true;
         } catch (emailError) {
           console.error('Email sending failed:', emailError);
+          console.error('SendGrid API Key exists:', !!sendgridApiKey);
+          console.error('Error details:', emailError.response?.body || emailError.message);
           responseData.email_sent = false;
+          responseData.email_error = emailError.message;
         }
+      } else {
+        console.error('SendGrid API key not found in environment variables');
+        responseData.email_sent = false;
+        responseData.email_error = 'SendGrid API key not configured';
       }
     }
 

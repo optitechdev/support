@@ -766,10 +766,22 @@
                         conversationHistory.push({role: 'assistant', content: data.response});
                         
                         if (data.ticket_created) {
+                            let emailStatus = '';
+                            if (data.email_sent === true) {
+                                emailStatus = '📧 Bekräftelse-e-post har skickats till dig.';
+                            } else if (data.email_sent === false) {
+                                emailStatus = '⚠️ E-post kunde inte skickas, men ärendet är registrerat.';
+                                if (data.email_error) {
+                                    console.error('Email error:', data.email_error);
+                                }
+                            } else {
+                                emailStatus = '📧 Ärendedata har dokumenterats och kommer att hanteras inom kort.';
+                            }
+                            
                             addMessage(`
                                 <div class="ticket-success">
                                     ✅ <strong>Supportärende ${data.ticket_id} har skapats!</strong><br>
-                                    📧 Ärendedata har dokumenterats och kommer att hanteras inom kort.<br>
+                                    ${emailStatus}<br>
                                     📞 Du kan även kontakta oss direkt på support@optitech-sverige.se
                                 </div>
                             `);
