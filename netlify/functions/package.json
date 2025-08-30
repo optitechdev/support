@@ -1,0 +1,9 @@
+{
+  "name": "optitech-support-functions",
+  "version": "1.0.0",
+  "description": "Netlify Functions for Optitech Support",
+  "dependencies": {
+    "node-fetch": "^2.6.7",
+    "@sendgrid/mail": "^7.7.0"
+  }
+}

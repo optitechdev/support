@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const sgMail = require('@sendgrid/mail');
 
 exports.handler = async (event, context) => {
   // Hantera CORS
@@ -117,13 +118,68 @@ Svara då: "SKAPA_ÄRENDE: [namn] | [email] | [beskrivning]" `
       const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
       const ticketId = `OPT-${timestamp}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
       
-      responseData.ticket_created = true;
-      responseData.ticket_id = ticketId;
-      responseData.ticket_data = {
+      const ticketData = {
         namn: ticketMatch[1].trim(),
         email: ticketMatch[2].trim(),
         beskrivning: ticketMatch[3].trim()
       };
+
+      responseData.ticket_created = true;
+      responseData.ticket_id = ticketId;
+      responseData.ticket_data = ticketData;
+
+      // Skicka e-post via SendGrid
+      const sendgridApiKey = process.env.SENDGRID_API_KEY;
+      if (sendgridApiKey) {
+        try {
+          sgMail.setApiKey(sendgridApiKey);
+
+          // E-post till kund
+          const customerEmail = {
+            to: ticketData.email,
+            from: 'support@optitech-sverige.se',
+            subject: `Vi har tagit emot ditt supportärende – ${ticketId}`,
+            text: `Hej ${ticketData.namn},
+
+Tack för att du kontaktade oss. Vi har tagit emot följande ärende:
+
+${ticketData.beskrivning}
+
+Ärendenummer: ${ticketId}
+
+Vårt supportteam återkommer så snart som möjligt.
+
+Vänliga hälsningar,  
+Supportteamet`
+          };
+
+          // E-post till admin
+          const adminEmail = {
+            to: 'support@optitech-sverige.se',
+            from: 'support@optitech-sverige.se',
+            subject: `Nytt supportärende från ${ticketData.namn} – ${ticketId}`,
+            text: `Ett nytt ärende har inkommit:
+
+Namn: ${ticketData.namn}
+E-post: ${ticketData.email}
+Ärende:
+${ticketData.beskrivning}
+
+Ärendenummer: ${ticketId}`
+          };
+
+          // Skicka båda e-posten
+          await Promise.all([
+            sgMail.send(customerEmail),
+            sgMail.send(adminEmail)
+          ]);
+
+          responseData.email_sent = true;
+        } catch (emailError) {
+          console.error('Email sending failed:', emailError);
+          responseData.email_sent = false;
+        }
+      }
     }
 
     return {

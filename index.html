@@ -730,17 +730,17 @@
                                window.location.hostname.includes('github.dev');
                 
                 // För GitHub Pages - använd Netlify Functions
-                const isGitHubPages = window.location.hostname.includes('github.io') || 
-                                     window.location.hostname === 'support.optitech-sverige.se';
+                const isNetlify = window.location.hostname === 'support.optitech-sverige.se' ||
+                                 window.location.hostname.includes('netlify.app');
                 
                 let apiUrl;
                 if (isLocal) {
                     apiUrl = '/chat'; // Lokal Flask server
-                } else if (isGitHubPages) {
-                    // Använd Netlify Functions för GitHub Pages
-                    apiUrl = 'https://optitech-support-api.netlify.app/.netlify/functions/chat';
+                } else if (isNetlify) {
+                    // Använd Netlify Functions på samma domän
+                    apiUrl = '/.netlify/functions/chat';
                 } else {
-                    apiUrl = '/chat'; // Fallback
+                    apiUrl = '/.netlify/functions/chat'; // Fallback till Netlify Functions
                 }
                 
                 console.log('Using API endpoint:', apiUrl);
