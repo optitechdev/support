@@ -225,6 +225,64 @@
             display: none;
         }
         
+        .quick-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 3px;
+            transition: background 0.3s;
+            display: inline-block;
+        }
+        
+        .quick-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-style: italic;
+            margin: 10px 0;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+        
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typingDots 1.4s ease-in-out infinite;
+        }
+        
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typingDots {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        
         .header {
             margin-bottom: 30px;
         }
@@ -330,7 +388,14 @@
                 <div class="message">
                     <div class="ai-message">
                         💬 Hej! Jag är din AI-assistent från Optitech Sverige.<br>
-                        💡 Ställ dina frågor så hjälper jag dig så gott jag kan!
+                        💡 Ställ dina frågor så hjälper jag dig så gott jag kan!<br><br>
+                        🚀 <strong>Vanliga frågor:</strong><br>
+                        <div style="margin-top: 10px;">
+                            <button class="quick-btn" onclick="quickQuestion('Jag har problem med lösenordet')">🔐 Lösenordsproblem</button>
+                            <button class="quick-btn" onclick="quickQuestion('Min dator är långsam')">💻 Långsam dator</button>
+                            <button class="quick-btn" onclick="quickQuestion('Internetproblem')">🌐 Internet</button>
+                            <button class="quick-btn" onclick="quickQuestion('E-postproblem')">📧 E-post</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -469,6 +534,12 @@
             }
         }
         
+        // Snabbfrågor
+        function quickQuestion(question) {
+            messageInput.value = question;
+            sendMessage();
+        }
+        
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message';
@@ -503,17 +574,139 @@
             }
         }
         
-        // Simulerad AI-chat (fungerar även utan backend)
+        // Förbättrad simulerad AI-chat med mer intelligenta svar
         function simulateAIResponse(message) {
-            const responses = [
-                "Tack för ditt meddelande! Jag förstår att du behöver hjälp med: " + message + ". Kan du berätta mer om problemet?",
-                "Det låter som en vanlig fråga. Här är några förslag på lösningar...",
-                "För att hjälpa dig bättre behöver jag lite mer information. Vad för typ av enhet använder du?",
-                "Jag ser att det handlar om ett tekniskt problem. Låt mig gå igenom några felsökningssteg med dig.",
-                "Baserat på din beskrivning verkar det som om detta kan lösas genom att..."
+            const userMessage = message.toLowerCase();
+            
+            // Teknisk support kategorier
+            if (userMessage.includes('lösenord') || userMessage.includes('inloggning') || userMessage.includes('logga in')) {
+                return `🔐 **Lösenordsproblem?** Här är stegen för att återställa:<br><br>
+                1. Gå till inloggningssidan<br>
+                2. Klicka "Glömt lösenord"<br>
+                3. Ange din e-post<br>
+                4. Kontrollera din inkorg (även skräppost)<br><br>
+                💡 Fortfarande problem? Kontakta oss på support@optitech-sverige.se`;
+            }
+            
+            if (userMessage.includes('e-post') || userMessage.includes('email') || userMessage.includes('mejl')) {
+                return `📧 **E-postproblem?** Låt mig hjälpa dig:<br><br>
+                • Kontrollera internetanslutningen<br>
+                • Verifiera e-postinställningar<br>
+                • Kolla skräppostmappen<br>
+                • Säkerställ att kontot inte är fullt<br><br>
+                🔧 Behöver du hjälp med specifika inställningar? Ange din e-postklient (Outlook, Gmail, etc.)`;
+            }
+            
+            if (userMessage.includes('internet') || userMessage.includes('wifi') || userMessage.includes('anslutning')) {
+                return `🌐 **Internetproblem?** Vanliga lösningar:<br><br>
+                1. **Starta om routern** (vänta 30 sek)<br>
+                2. **Kontrollera kablar** - är allt inkopplat?<br>
+                3. **Testa andra enheter** - fungerar WiFi på telefon?<br>
+                4. **Kontakta internetleverantör** om problemet kvarstår<br><br>
+                📶 Hastighetstest: Gå till speedtest.net för att mäta hastigheten`;
+            }
+            
+            if (userMessage.includes('dator') || userMessage.includes('pc') || userMessage.includes('långsam') || userMessage.includes('hänger')) {
+                return `💻 **Datorproblem?** Snabbfixar att prova:<br><br>
+                • **Starta om datorn** (klassiker som ofta fungerar!)<br>
+                • **Stäng onödiga program** - Ctrl+Shift+Esc för Task Manager<br>
+                • **Rensa temp-filer** - kör Disk Cleanup<br>
+                • **Uppdatera Windows** - Settings > Update & Security<br><br>
+                🔧 Fortfarande långsam? Det kan vara dags för en djupare rengöring eller hårdvaruuppgradering.`;
+            }
+            
+            if (userMessage.includes('virus') || userMessage.includes('malware') || userMessage.includes('säkerhet')) {
+                return `🛡️ **Säkerhetsproblem?** Viktiga steg:<br><br>
+                1. **Koppla från internet** omedelbart<br>
+                2. **Kör antivirus-scan** (Windows Defender eller ditt antivirusprogram)<br>
+                3. **Uppdatera alla program** och operativsystem<br>
+                4. **Ändra lösenord** på viktiga konton<br><br>
+                ⚠️ **Misstänker du bedrägeri?** Kontakta din bank omedelbart och anmäl till polisen.`;
+            }
+            
+            if (userMessage.includes('skrivare') || userMessage.includes('printer') || userMessage.includes('skriva ut')) {
+                return `🖨️ **Skrivarproblem?** Vanliga lösningar:<br><br>
+                • **Kontrollera anslutningen** - USB eller WiFi<br>
+                • **Papperet rätt?** - Justera pappersguiderna<br>
+                • **Bläck/toner?** - Kontrollera nivåerna<br>
+                • **Starta om** både dator och skrivare<br><br>
+                📄 **Skrivarköproblem?** Gå till Inställningar > Skrivare för att rensa kön.`;
+            }
+            
+            if (userMessage.includes('telefon') || userMessage.includes('mobil') || userMessage.includes('smartphone')) {
+                return `📱 **Telefonproblem?** Här är hjälpen:<br><br>
+                • **Starta om telefonen** (håll power-knappen)<br>
+                • **Kontrollera lagringsutrymme** - radera gamla foton/appar<br>
+                • **Uppdatera appar** via App Store/Google Play<br>
+                • **Säkerhetskopiera** viktiga data regelbundet<br><br>
+                🔋 **Batteriproblmer?** Stäng av bakgrundsappar och minska skärmljusstyrkan.`;
+            }
+            
+            if (userMessage.includes('backup') || userMessage.includes('säkerhetskopia') || userMessage.includes('återställ')) {
+                return `💾 **Backup och återställning:**<br><br>
+                **Windows:**<br>
+                • Använd "Filhistorik" för automatisk backup<br>
+                • OneDrive för molnlagring<br><br>
+                **Mac:**<br>
+                • Time Machine för fullständig backup<br>
+                • iCloud för viktiga dokument<br><br>
+                ☁️ **Molntjänster:** Google Drive, Dropbox, OneDrive - alla bra alternativ!`;
+            }
+            
+            if (userMessage.includes('ärende') || userMessage.includes('support') || userMessage.includes('hjälp') || userMessage.includes('problem')) {
+                return `🎫 **Vill du skapa ett supportärende?**<br><br>
+                För personlig hjälp, kontakta oss direkt:<br><br>
+                📧 **E-post:** support@optitech-sverige.se<br>
+                📞 **Telefon:** [Ditt telefonnummer]<br>
+                🌐 **Webb:** optitech-sverige.se<br><br>
+                💡 **Tips:** Beskriv problemet detaljerat och inkludera felmeddelanden om möjligt.`;
+            }
+            
+            // Hälsningar och allmänna frågor
+            if (userMessage.includes('hej') || userMessage.includes('hallo') || userMessage.includes('tjena') || userMessage.includes('tack')) {
+                const greetings = [
+                    `👋 Hej! Vad kan jag hjälpa dig med idag? Jag kan assistera med:<br>
+                    • Datorproblem<br>
+                    • Internetanslutning<br>
+                    • E-postinställningar<br>
+                    • Lösenordsåterställning<br>
+                    • Säkerhetsfrågor<br><br>
+                    Berätta bara vad du behöver hjälp med!`,
+                    
+                    `🤖 Hej där! Jag är här för att hjälpa dig med tekniska problem. Några vanliga områden jag kan assistera med:<br>
+                    🔧 Felsökning av enheter<br>
+                    🌐 Nätverksproblem<br>
+                    🔐 Säkerhetsrågivning<br>
+                    📧 E-postsupport<br><br>
+                    Vad kan jag hjälpa dig med?`,
+                ];
+                return greetings[Math.floor(Math.random() * greetings.length)];
+            }
+            
+            // Default intelligent svar
+            const defaultResponses = [
+                `🤔 Jag förstår att du behöver hjälp med: "${message}"<br><br>
+                Kan du berätta lite mer om problemet? Till exempel:<br>
+                • Vilken enhet använder du?<br>
+                • När började problemet?<br>
+                • Har du provat något redan?<br><br>
+                💡 **Snabbtips:** Prova att starta om enheten först - det löser många problem!`,
+                
+                `🔍 Baserat på din fråga behöver jag lite mer information för att hjälpa dig bättre:<br><br>
+                • Är det ett **hårdvaruproblem** (dator, skrivare, telefon)?<br>
+                • Eller ett **mjukvaruproblem** (program, appar, webbläsare)?<br>
+                • Kanske **nätverksproblem** (internet, WiFi, e-post)?<br><br>
+                📞 För akut hjälp: support@optitech-sverige.se`,
+                
+                `🛠️ Låt mig hjälpa dig med det här! Några vanliga felsökningssteg:<br><br>
+                1. **Starta om** enheten/programmet<br>
+                2. **Kontrollera uppdateringar** (Windows Update, App Store)<br>
+                3. **Kolla anslutningar** (USB, WiFi, kablar)<br>
+                4. **Testa på annan enhet** för att isolera problemet<br><br>
+                💬 Fungerade något av detta? Berätta hur det går!`,
             ];
             
-            return responses[Math.floor(Math.random() * responses.length)];
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
         }
         
         async function sendMessage() {
@@ -574,14 +767,14 @@
                 }
                 
             } catch (error) {
-                // Fallback till simulerad AI om backend inte finns
+                // Fallback till förbättrad simulerad AI
                 hideLoading();
-                console.log('Använder simulerad AI:', error.message);
+                console.log('Använder förbättrad simulerad AI:', error.message);
                 setTimeout(() => {
                     const aiResponse = simulateAIResponse(message);
-                    addMessage("🤖 " + aiResponse + "\n\n💡 <em>Detta är en simulerad AI-respons. För fullständig support, kontakta support@optitech-sverige.se</em>");
+                    addMessage("🤖 " + aiResponse + "<br><br>💡 <em><small>Detta är vår smarta AI-assistent. För komplex support, kontakta support@optitech-sverige.se</small></em>");
                     conversationHistory.push({role: 'assistant', content: aiResponse});
-                }, 1000);
+                }, 1500);
             }
             
             sendButton.disabled = false;
