@@ -1,7 +1,7 @@
 python-dotenv==1.1.1
 sendgrid==6.12.4
 requests==2.32.5
-flask==3.0.3
+flask==3.1.2
 flask-cors==4.0.1
 psutil==5.9.8
 gunicorn==21.2.0
