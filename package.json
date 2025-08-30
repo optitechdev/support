@@ -1,0 +1,20 @@
+{
+  "name": "optitech-support-netlify",
+  "version": "1.0.0",
+  "description": "Serverless functions for Optitech Support AI",
+  "main": "index.js",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build step required'",
+    "deploy": "netlify deploy --prod"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "netlify-cli": "^15.0.0"
+  },
+  "keywords": ["serverless", "netlify", "azure-openai", "support"],
+  "author": "Optitech Sverige AB",
+  "license": "MIT"
+}

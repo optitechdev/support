@@ -729,9 +729,23 @@
                                window.location.hostname.includes('codespaces') ||
                                window.location.hostname.includes('github.dev');
                 
-                const apiUrl = isLocal ? '/chat' : 'https://your-flask-server.herokuapp.com/chat';
+                // För GitHub Pages - använd Netlify Functions
+                const isGitHubPages = window.location.hostname.includes('github.io') || 
+                                     window.location.hostname === 'support.optitech-sverige.se';
                 
-                // Försök att använda Flask-backend
+                let apiUrl;
+                if (isLocal) {
+                    apiUrl = '/chat'; // Lokal Flask server
+                } else if (isGitHubPages) {
+                    // Använd Netlify Functions för GitHub Pages
+                    apiUrl = 'https://optitech-support.netlify.app/.netlify/functions/chat';
+                } else {
+                    apiUrl = '/chat'; // Fallback
+                }
+                
+                console.log('Using API endpoint:', apiUrl);
+                
+                // Försök att använda riktig AI (lokal Flask eller Netlify Functions)
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
@@ -739,7 +753,7 @@
                     },
                     body: JSON.stringify({
                         message: message,
-                        history: conversationHistory
+                        history: conversationHistory.slice(-10) // Begränsa historik för prestanda
                     })
                 });
                 
@@ -748,22 +762,23 @@
                     hideLoading();
                     
                     if (data.success) {
-                        addMessage(data.response);
+                        addMessage("🤖 " + data.response);
                         conversationHistory.push({role: 'assistant', content: data.response});
                         
                         if (data.ticket_created) {
                             addMessage(`
                                 <div class="ticket-success">
                                     ✅ <strong>Supportärende ${data.ticket_id} har skapats!</strong><br>
-                                    📧 Du kommer få en bekräftelse på din e-post inom kort.
+                                    📧 Ärendedata har dokumenterats och kommer att hanteras inom kort.<br>
+                                    📞 Du kan även kontakta oss direkt på support@optitech-sverige.se
                                 </div>
                             `);
                         }
                     } else {
-                        addMessage('❌ Något gick fel. Försök igen senare.');
+                        throw new Error(data.error || 'API Error');
                     }
                 } else {
-                    throw new Error('Backend inte tillgänglig');
+                    throw new Error(`HTTP ${response.status}`);
                 }
                 
             } catch (error) {
@@ -772,7 +787,7 @@
                 console.log('Använder förbättrad simulerad AI:', error.message);
                 setTimeout(() => {
                     const aiResponse = simulateAIResponse(message);
-                    addMessage("🤖 " + aiResponse + "<br><br>💡 <em><small>Detta är vår smarta AI-assistent. För komplex support, kontakta support@optitech-sverige.se</small></em>");
+                    addMessage("🤖 " + aiResponse + "<br><br>💡 <em><small>Smart fallback-AI aktiv. För Azure OpenAI, konfigurera Netlify Functions med dina API-nycklar.</small></em>");
                     conversationHistory.push({role: 'assistant', content: aiResponse});
                 }, 1500);
             }
