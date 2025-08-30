@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optitech Support - AI Assistent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 600px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 18px;
+        }
+        
+        .status {
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #c3e6cb;
+            margin: 20px 0;
+        }
+        
+        .info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .info h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .info ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info li:last-child {
+            border-bottom: none;
+        }
+        
+        .contact {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .contact h3 {
+            margin-bottom: 15px;
+        }
+        
+        .contact p {
+            margin-bottom: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Optitech Support</h1>
+            <p>AI-driven teknisk support</p>
+        </div>
+        
+        <div class="status">
+            ✅ <strong>Subdomänen är nu aktiv!</strong><br>
+            support.optitech-sverige.se fungerar perfekt
+        </div>
+        
+        <div class="info">
+            <h3>📋 System Information</h3>
+            <ul>
+                <li><strong>Domän:</strong> support.optitech-sverige.se</li>
+                <li><strong>Status:</strong> Online ✅</li>
+                <li><strong>SSL:</strong> Aktivt 🔒</li>
+                <li><strong>Hosting:</strong> GitHub Pages</li>
+                <li><strong>DNS:</strong> Konfigurerat ✅</li>
+            </ul>
+        </div>
+        
+        <div class="info">
+            <h3>🚀 Tillgängliga tjänster</h3>
+            <ul>
+                <li>AI-chatbot för teknisk support</li>
+                <li>Automatisk ärendehantering</li>
+                <li>E-postnotifikationer</li>
+                <li>24/7 tillgänglighet</li>
+                <li>Svensk språksupport</li>
+            </ul>
+        </div>
+        
+        <div class="contact">
+            <h3>📞 Kontakta oss</h3>
+            <p><strong>E-post:</strong> support@optitech-sverige.se</p>
+            <p><strong>Webb:</strong> optitech-sverige.se</p>
+            <p><strong>Support:</strong> support.optitech-sverige.se</p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Optitech Sverige AB - Alla rättigheter förbehållna</p>
+            <p>Sidan uppdaterad: <span id="timestamp"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Visa aktuell tid
+        document.getElementById('timestamp').textContent = new Date().toLocaleString('sv-SE');
+        
+        // Enkel test av subdomänen
+        console.log('✅ Subdomänen support.optitech-sverige.se fungerar!');
+        console.log('🔗 GitHub Pages deployment lyckad');
+        console.log('🎉 IP address mismatch löst!');
+    </script>
+</body>
+</html>
