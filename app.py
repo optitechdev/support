@@ -21,12 +21,19 @@ CORS(app)
 if os.environ.get('FLASK_ENV') != 'development':
     app.config['DEBUG'] = False
     app.config['TESTING'] = False
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(32))
 
 # Konfigurera logging för säker felhantering
 import logging
 if not app.debug:
-    # I produktion, logga bara till fil eller systemlogg
-    logging.basicConfig(level=logging.ERROR)
+    logging.basicConfig(
+        level=logging.ERROR,
+        format='%(asctime)s %(levelname)s: %(message)s',
+        handlers=[
+            logging.FileHandler('app.log'),
+            logging.StreamHandler()
+        ]
+    )
 
 # Azure OpenAI konfiguration
 API_KEY = os.getenv("AZURE_OPENAI_API_KEY")

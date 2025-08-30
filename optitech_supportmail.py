@@ -1,18 +1,23 @@
 import os
+import logging
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# Konfigurera logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 def send_support_email(customer_name, customer_email, ticket_description, ticket_id=None):
     api_key = os.environ.get("SENDGRID_API_KEY")
     if not api_key:
-        print("❌ API-nyckel saknas.")
+        logger.error("SendGrid API key missing")
         return
 
     # Logga bara att API-nyckel laddats, inte själva nyckeln
-    print("🔐 SendGrid API-nyckel laddad framgångsrikt")
+    logger.info("SendGrid API key loaded successfully")
 
     sg = SendGridAPIClient(api_key=api_key)
 
@@ -37,7 +42,7 @@ Supportteamet
 """
         )
         user_response = sg.send(message_to_user)
-        print(f"📨 Till användare – Status: {user_response.status_code}")
+        logger.info(f"Email sent to user - Status: {user_response.status_code}")
 
         # Intern notis
         message_to_admin = Mail(
@@ -53,7 +58,7 @@ E-post: {customer_email}
 """
         )
         admin_response = sg.send(message_to_admin)
-        print(f"📨 Till admin – Status: {admin_response.status_code}")
+        logger.info(f"Email sent to admin - Status: {admin_response.status_code}")
 
     except Exception as e:
-        print("❌ Något gick fel med e-postutskicket:", e)
+        logger.error(f"Email sending failed: {str(e)}")
