@@ -266,7 +266,7 @@ HTML_TEMPLATE = """
     <div class="chat-container">
         <div class="header">
             <h1>🤖 Optitech Support</h1>
-            <p>Din AI-assistent för teknisk support</p>
+            <p>Din AI-assistent för teknisk support • support.optitech-sverige.se</p>
         </div>
         
         <div class="chat-messages" id="chatMessages">
