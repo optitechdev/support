@@ -1,0 +1,61 @@
+version: 2
+updates:
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "🔧"
+      include: "scope"
+
+  # Frontend Node.js dependencies  
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "🔧"
+      include: "scope"
+
+  # Support subfolder Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/support"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "11:00"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "support"
+    commit-message:
+      prefix: "🔧"
+      include: "scope"
+
+  # Support frontend Node.js dependencies
+  - package-ecosystem: "npm"
+    directory: "/support/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "12:00"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "support-frontend"
+    commit-message:
+      prefix: "🔧"
+      include: "scope"
