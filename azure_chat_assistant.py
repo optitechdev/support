@@ -23,12 +23,13 @@ def test_ai_connection():
             {"role": "system", "content": "Du är en hjälpsam AI-assistent på svenska."},
             {"role": "user", "content": "Säg hej och bekräfta att du fungerar!"}
         ],
-        "temperature": 0.7,
-        "max_tokens": 100
+        "temperature": 0.3,  # Lägre temperatur för snabbare svar
+        "max_tokens": 500,   # Öka lite för bättre svar
+        "top_p": 0.9
     }
 
     print("🔄 Testar AI-anslutning...")
-    response = requests.post(url, headers=headers, json=data)
+    response = requests.post(url, headers=headers, json=data, timeout=10)  # 10 sekunders timeout
 
     if response.status_code == 200:
         reply = response.json()["choices"][0]["message"]["content"]

@@ -55,20 +55,9 @@ exports.handler = async (event, context) => {
 
     const systemMessage = {
       role: "system",
-      content: `Du är en vänlig AI-assistent för Optitech Sverige. 
-
-VIKTIGT: Du ska FÖRST chatta naturligt med kunden och hjälpa dem så gott du kan. 
-Svara på frågor, lös problem och ge teknisk support.
-
-BARA när kunden uttryckligen ber om att "skapa ett ärende" eller "öppna ett supportärende" 
-ELLER när du inte kan lösa problemet själv, då ska du samla in:
-- Kundens namn  
-- E-postadress
-- Kort beskrivning av problemet
-
-När du har all denna info, svara EXAKT: "SKAPA_ÄRENDE: [namn] | [email] | [beskrivning]"
-
-Annars - chatta bara normalt och hjälp kunden så gott du kan!`
+      content: `Optitech Sverige AI-support. Hjälp kunder direkt när möjligt. 
+Vid komplexa problem som kräver ärendehantering, samla: namn, e-post, problembeskrivning.
+Svara då: "SKAPA_ÄRENDE: [namn] | [email] | [beskrivning]" `
     };
 
     const messages = [systemMessage, ...history, { role: 'user', content: message }];
@@ -81,9 +70,12 @@ Annars - chatta bara normalt och hjälp kunden så gott du kan!`
       },
       body: JSON.stringify({
         messages: messages,
-        temperature: 0.7,
-        max_tokens: 1500
-      })
+        temperature: 0.3,    // Lägre temperatur för snabbare svar
+        max_tokens: 800,     // Minska tokens för snabbare svar
+        top_p: 0.9,          // Optimera för hastighet
+        frequency_penalty: 0.1
+      }),
+      timeout: 15000  // 15 sekunders timeout
     });
 
     if (!response.ok) {

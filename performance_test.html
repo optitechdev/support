@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prestandatest - Optitech</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid #007bff;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        .test-area {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        #testMessage {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            color: #007bff;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AI Prestandamonitor</h1>
+        <p>Övervaka och testa AI-systemets prestanda i realtid.</p>
+        
+        <div id="statsContainer">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="avgTime">-</div>
+                    <div class="stat-label">Genomsnittlig svarstid (s)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="successRate">-</div>
+                    <div class="stat-label">Framgångsfrekvens (%)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRequests">-</div>
+                    <div class="stat-label">Totala förfrågningar</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="errorCount">-</div>
+                    <div class="stat-label">Fel</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-area">
+            <h3>🧪 Testa AI-prestanda</h3>
+            <input type="text" id="testMessage" placeholder="Skriv ett testmeddelande..." value="Hej, kan du hjälpa mig?">
+            <br>
+            <button class="btn" onclick="testSingleMessage()">Testa enskilt meddelande</button>
+            <button class="btn" onclick="runPerformanceTest()">Kör prestandatest (5 meddelanden)</button>
+            <button class="btn" onclick="updateStats()">Uppdatera statistik</button>
+            
+            <div id="testResult"></div>
+        </div>
+    </div>
+
+    <script>
+        // Uppdatera statistik automatiskt
+        updateStats();
+        setInterval(updateStats, 30000); // Uppdatera var 30:e sekund
+
+        async function updateStats() {
+            try {
+                const response = await fetch('/performance');
+                const data = await response.json();
+                const stats = data.performance;
+                
+                document.getElementById('avgTime').textContent = stats.avg_response_time || '-';
+                document.getElementById('successRate').textContent = stats.success_rate || '-';
+                document.getElementById('totalRequests').textContent = stats.total_requests || '0';
+                document.getElementById('errorCount').textContent = stats.error_count || '0';
+                
+                // Färgkodning baserat på prestanda
+                const avgTimeElement = document.getElementById('avgTime');
+                if (stats.avg_response_time > 10) {
+                    avgTimeElement.style.color = '#dc3545'; // Röd
+                } else if (stats.avg_response_time > 5) {
+                    avgTimeElement.style.color = '#ffc107'; // Gul
+                } else {
+                    avgTimeElement.style.color = '#28a745'; // Grön
+                }
+                
+            } catch (error) {
+                console.error('Fel vid hämtning av statistik:', error);
+            }
+        }
+
+        async function testSingleMessage() {
+            const message = document.getElementById('testMessage').value;
+            const resultDiv = document.getElementById('testResult');
+            
+            if (!message.trim()) {
+                resultDiv.innerHTML = '<div class="result error">Ange ett meddelande att testa.</div>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="result loading">🔄 Testar AI-svarstid...</div>';
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversation_history: []
+                    })
+                });
+                
+                const endTime = Date.now();
+                const duration = (endTime - startTime) / 1000;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="result">
+                            <strong>✅ Test slutfört!</strong><br>
+                            <strong>Svarstid:</strong> ${duration.toFixed(2)}s<br>
+                            <strong>AI-svar:</strong> ${data.response}<br>
+                            <em>Statistik uppdateras automatiskt...</em>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <strong>❌ Test misslyckades</strong><br>
+                            <strong>Svarstid:</strong> ${duration.toFixed(2)}s<br>
+                            <strong>Status:</strong> ${response.status}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                const endTime = Date.now();
+                const duration = (endTime - startTime) / 1000;
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <strong>❌ Nätverksfel</strong><br>
+                        <strong>Tid:</strong> ${duration.toFixed(2)}s<br>
+                        <strong>Fel:</strong> ${error.message}
+                    </div>
+                `;
+            }
+            
+            // Uppdatera statistik efter test
+            setTimeout(updateStats, 2000);
+        }
+
+        async function runPerformanceTest() {
+            const resultDiv = document.getElementById('testResult');
+            const testMessages = [
+                "Hej, kan du hjälpa mig?",
+                "Vad är Optitech?",
+                "Jag har problem med min dator",
+                "Hur kontaktar jag support?",
+                "Tack för hjälpen!"
+            ];
+            
+            resultDiv.innerHTML = '<div class="result loading">🚀 Kör prestandatest med 5 meddelanden...</div>';
+            
+            const startTime = Date.now();
+            const results = [];
+            
+            for (let i = 0; i < testMessages.length; i++) {
+                const message = testMessages[i];
+                const msgStartTime = Date.now();
+                
+                try {
+                    const response = await fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            conversation_history: []
+                        })
+                    });
+                    
+                    const msgEndTime = Date.now();
+                    const msgDuration = (msgEndTime - msgStartTime) / 1000;
+                    
+                    results.push({
+                        message: message,
+                        duration: msgDuration,
+                        success: response.ok
+                    });
+                    
+                    // Uppdatera progress
+                    resultDiv.innerHTML = `
+                        <div class="result loading">
+                            🚀 Prestandatest pågår... ${i + 1}/5 meddelanden klara
+                        </div>
+                    `;
+                    
+                } catch (error) {
+                    const msgEndTime = Date.now();
+                    const msgDuration = (msgEndTime - msgStartTime) / 1000;
+                    results.push({
+                        message: message,
+                        duration: msgDuration,
+                        success: false,
+                        error: error.message
+                    });
+                }
+            }
+            
+            const totalTime = (Date.now() - startTime) / 1000;
+            const successCount = results.filter(r => r.success).length;
+            const avgTime = results.reduce((sum, r) => sum + r.duration, 0) / results.length;
+            
+            resultDiv.innerHTML = `
+                <div class="result">
+                    <strong>📊 Prestandatest slutfört!</strong><br>
+                    <strong>Total tid:</strong> ${totalTime.toFixed(2)}s<br>
+                    <strong>Genomsnittlig svarstid:</strong> ${avgTime.toFixed(2)}s<br>
+                    <strong>Framgångsfrekvens:</strong> ${successCount}/5 (${(successCount/5*100).toFixed(1)}%)<br>
+                    <em>Detaljerad statistik uppdateras automatiskt...</em>
+                </div>
+            `;
+            
+            // Uppdatera statistik efter test
+            setTimeout(updateStats, 3000);
+        }
+    </script>
+</body>
+</html>

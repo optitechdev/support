@@ -9,13 +9,28 @@ import uuid
 import datetime
 import json
 import re
+import time
 from dotenv import load_dotenv
 from optitech_supportmail import send_support_email
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+from performance_monitor import monitor_performance, tracker
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+# Optimerad HTTP-session med connection pooling
+session = requests.Session()
+retry_strategy = Retry(
+    total=3,
+    backoff_factor=1,
+    status_forcelist=[429, 500, 502, 503, 504],
+)
+adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=10, pool_maxsize=20)
+session.mount("http://", adapter)
+session.mount("https://", adapter)
 
 # Säker konfiguration för produktion
 if os.environ.get('FLASK_ENV') != 'development':
@@ -51,20 +66,9 @@ class WebAISupport:
     def __init__(self):
         self.system_message = {
             "role": "system",
-            "content": """Du är en vänlig AI-assistent för Optitech Sverige. 
-
-VIKTIGT: Du ska FÖRST chatta naturligt med kunden och hjälpa dem så gott du kan. 
-Svara på frågor, lös problem och ge teknisk support.
-
-BARA när kunden uttryckligen ber om att "skapa ett ärende" eller "öppna ett supportärende" 
-ELLER när du inte kan lösa problemet själv, då ska du samla in:
-- Kundens namn  
-- E-postadress
-- Kort beskrivning av problemet
-
-När du har all denna info, svara EXAKT: "SKAPA_ÄRENDE: [namn] | [email] | [beskrivning]"
-
-Annars - chatta bara normalt och hjälp kunden så gott du kan!"""
+            "content": """Optitech Sverige AI-support. Hjälp kunder direkt när möjligt. 
+Vid komplexa problem som kräver ärendehantering, samla: namn, e-post, problembeskrivning.
+Svara då: "SKAPA_ÄRENDE: [namn] | [email] | [beskrivning]" """
         }
         
     def extract_ticket_data(self, ai_response):
@@ -80,27 +84,37 @@ Annars - chatta bara normalt och hjälp kunden så gott du kan!"""
             }
         return None
     
+    @monitor_performance("AI Chat")
     def chat_with_ai(self, user_input, conversation_history):
         """Skickar meddelande till AI och får svar"""
         messages = [self.system_message] + conversation_history + [{"role": "user", "content": user_input}]
         
+        start_time = time.time()
         try:
-            response = requests.post(url, headers=headers, json={
+            response = session.post(url, headers=headers, json={
                 "messages": messages,
-                "temperature": 0.7,
-                "max_tokens": 1500
-            })
+                "temperature": 0.3,  # Lägre temperatur för snabbare och mer fokuserade svar
+                "max_tokens": 800,   # Minska tokens för snabbare svar
+                "top_p": 0.9,        # Optimera för hastighet
+                "frequency_penalty": 0.1
+            }, timeout=15)  # 15 sekunders timeout
+            
+            duration = time.time() - start_time
             
             if response.status_code == 200:
                 ai_reply = response.json()["choices"][0]["message"]["content"]
+                tracker.log_response_time(duration, success=True)
                 return ai_reply
             else:
                 # Logga fel utan att exponera känslig information
                 app.logger.error(f"AI API error: {response.status_code}")
+                tracker.log_response_time(duration, success=False)
                 return "❌ AI-tjänsten är tillfälligt otillgänglig. Försök igen senare."
         except Exception as e:
+            duration = time.time() - start_time
             # Logga fel internt
             app.logger.error(f"AI request error: {str(e)}")
+            tracker.log_response_time(duration, success=False)
             return "❌ Tekniskt fel vid kommunikation med AI. Försök igen senare."
     
     def create_support_ticket(self, ticket_data):
@@ -467,6 +481,15 @@ def health():
     """Hälsokontroll för deployment"""
     return jsonify({
         'status': 'healthy',
+        'timestamp': datetime.datetime.now().isoformat()
+    })
+
+@app.route('/performance')
+def performance_stats():
+    """API-endpoint för prestandastatistik"""
+    stats = tracker.get_stats()
+    return jsonify({
+        'performance': stats,
         'timestamp': datetime.datetime.now().isoformat()
     })
 
