@@ -18,6 +18,35 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
+        }
+        
+        .main-container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
+            height: 80vh;
+            min-height: 600px;
+        }
+        
+        .info-panel {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 400px;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .chat-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         
         .container {
@@ -28,6 +57,172 @@
             max-width: 600px;
             padding: 40px;
             text-align: center;
+        }
+        
+        /* Chat styles */
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .chat-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .chat-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            background: #667eea;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 18px 18px 4px 18px;
+            margin-left: auto;
+            max-width: 70%;
+        }
+        
+        .ai-message {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px 18px 18px 4px;
+            margin-right: auto;
+            max-width: 70%;
+            border: 1px solid #e9ecef;
+        }
+        
+        .input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #messageInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        #messageInput:focus {
+            border-color: #667eea;
+        }
+        
+        #sendButton {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        #sendButton:hover {
+            background: #5a6fd8;
+        }
+        
+        #sendButton:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .ticket-success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #c3e6cb;
+            margin: 10px 0;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+        }
+        
+        .loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Toggle button */
+        .view-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            z-index: 1000;
+        }
+        
+        .view-toggle:hover {
+            background: #5a6fd8;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .info-panel {
+                width: 100%;
+                order: 2;
+            }
+            
+            .chat-container {
+                height: 70vh;
+                order: 1;
+            }
+        }
+        
+        .hidden {
+            display: none;
         }
         
         .header {
@@ -120,7 +315,82 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <button class="view-toggle" onclick="toggleView()">Växla vy</button>
+    
+    <!-- Huvudvy med chat och info -->
+    <div class="main-container" id="mainView">
+        <!-- AI Chat Container -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>🤖 Optitech Support AI</h1>
+                <p>Din AI-assistent för teknisk support • support.optitech-sverige.se</p>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message">
+                    <div class="ai-message">
+                        💬 Hej! Jag är din AI-assistent från Optitech Sverige.<br>
+                        💡 Ställ dina frågor så hjälper jag dig så gott jag kan!
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <input type="text" id="messageInput" placeholder="Skriv ditt meddelande här..." maxlength="500">
+                <button id="sendButton">Skicka</button>
+            </div>
+        </div>
+        
+        <!-- Info Panel -->
+        <div class="info-panel">
+            <div class="header">
+                <h1>🤖 Optitech Support</h1>
+                <p>AI-driven teknisk support</p>
+            </div>
+            
+            <div class="status">
+                ✅ <strong>Subdomänen är nu aktiv!</strong><br>
+                support.optitech-sverige.se fungerar perfekt
+            </div>
+            
+            <div class="info">
+                <h3>📋 System Information</h3>
+                <ul>
+                    <li><strong>Domän:</strong> support.optitech-sverige.se</li>
+                    <li><strong>Status:</strong> Online ✅</li>
+                    <li><strong>SSL:</strong> Aktivt 🔒</li>
+                    <li><strong>Hosting:</strong> GitHub Pages</li>
+                    <li><strong>DNS:</strong> Konfigurerat ✅</li>
+                </ul>
+            </div>
+            
+            <div class="info">
+                <h3>🚀 Tillgängliga tjänster</h3>
+                <ul>
+                    <li>AI-chatbot för teknisk support</li>
+                    <li>Automatisk ärendehantering</li>
+                    <li>E-postnotifikationer</li>
+                    <li>24/7 tillgänglighet</li>
+                    <li>Svensk språksupport</li>
+                </ul>
+            </div>
+            
+            <div class="contact">
+                <h3>📞 Kontakta oss</h3>
+                <p><strong>E-post:</strong> support@optitech-sverige.se</p>
+                <p><strong>Webb:</strong> optitech-sverige.se</p>
+                <p><strong>Support:</strong> support.optitech-sverige.se</p>
+            </div>
+            
+            <div class="footer">
+                <p>© 2025 Optitech Sverige AB - Alla rättigheter förbehållna</p>
+                <p>Sidan uppdaterad: <span id="timestamp"></span></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alternativ vy - endast info -->
+    <div class="container hidden" id="infoView">
         <div class="header">
             <h1>🤖 Optitech Support</h1>
             <p>AI-driven teknisk support</p>
@@ -162,18 +432,168 @@
         
         <div class="footer">
             <p>© 2025 Optitech Sverige AB - Alla rättigheter förbehållna</p>
-            <p>Sidan uppdaterad: <span id="timestamp"></span></p>
+            <p>Sidan uppdaterad: <span id="timestamp2"></span></p>
         </div>
     </div>
 
     <script>
+        let conversationHistory = [];
+        
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        
         // Visa aktuell tid
-        document.getElementById('timestamp').textContent = new Date().toLocaleString('sv-SE');
+        function updateTimestamp() {
+            const now = new Date().toLocaleString('sv-SE');
+            const timestamp1 = document.getElementById('timestamp');
+            const timestamp2 = document.getElementById('timestamp2');
+            if (timestamp1) timestamp1.textContent = now;
+            if (timestamp2) timestamp2.textContent = now;
+        }
+        
+        updateTimestamp();
+        setInterval(updateTimestamp, 60000); // Uppdatera varje minut
+        
+        // Toggle mellan vyer
+        function toggleView() {
+            const mainView = document.getElementById('mainView');
+            const infoView = document.getElementById('infoView');
+            
+            if (mainView.classList.contains('hidden')) {
+                mainView.classList.remove('hidden');
+                infoView.classList.add('hidden');
+            } else {
+                mainView.classList.add('hidden');
+                infoView.classList.remove('hidden');
+            }
+        }
+        
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = isUser ? 'user-message' : 'ai-message';
+            messageContent.innerHTML = content.replace(/\n/g, '<br>');
+            
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function showLoading() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message';
+            loadingDiv.id = 'loading-message';
+            
+            const loadingContent = document.createElement('div');
+            loadingContent.className = 'ai-message loading';
+            loadingContent.textContent = 'AI tänker...';
+            
+            loadingDiv.appendChild(loadingContent);
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function hideLoading() {
+            const loadingMessage = document.getElementById('loading-message');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+        }
+        
+        // Simulerad AI-chat (fungerar även utan backend)
+        function simulateAIResponse(message) {
+            const responses = [
+                "Tack för ditt meddelande! Jag förstår att du behöver hjälp med: " + message + ". Kan du berätta mer om problemet?",
+                "Det låter som en vanlig fråga. Här är några förslag på lösningar...",
+                "För att hjälpa dig bättre behöver jag lite mer information. Vad för typ av enhet använder du?",
+                "Jag ser att det handlar om ett tekniskt problem. Låt mig gå igenom några felsökningssteg med dig.",
+                "Baserat på din beskrivning verkar det som om detta kan lösas genom att..."
+            ];
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+        
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            // Visa användarens meddelande
+            addMessage(message, true);
+            conversationHistory.push({role: 'user', content: message});
+            
+            // Rensa input och visa loading
+            messageInput.value = '';
+            sendButton.disabled = true;
+            showLoading();
+            
+            try {
+                // Försök att använda Flask-backend om den finns
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: conversationHistory
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    hideLoading();
+                    
+                    if (data.success) {
+                        addMessage(data.response);
+                        conversationHistory.push({role: 'assistant', content: data.response});
+                        
+                        if (data.ticket_created) {
+                            addMessage(`
+                                <div class="ticket-success">
+                                    ✅ <strong>Supportärende ${data.ticket_id} har skapats!</strong><br>
+                                    📧 Du kommer få en bekräftelse på din e-post inom kort.
+                                </div>
+                            `);
+                        }
+                    } else {
+                        addMessage('❌ Något gick fel. Försök igen senare.');
+                    }
+                } else {
+                    throw new Error('Backend inte tillgänglig');
+                }
+                
+            } catch (error) {
+                // Fallback till simulerad AI om backend inte finns
+                hideLoading();
+                setTimeout(() => {
+                    const aiResponse = simulateAIResponse(message);
+                    addMessage("🤖 " + aiResponse + "\n\n💡 <em>Detta är en simulerad AI-respons. För fullständig support, kontakta support@optitech-sverige.se</em>");
+                    conversationHistory.push({role: 'assistant', content: aiResponse});
+                }, 1000);
+            }
+            
+            sendButton.disabled = false;
+            messageInput.focus();
+        }
+        
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
         
         // Enkel test av subdomänen
         console.log('✅ Subdomänen support.optitech-sverige.se fungerar!');
         console.log('🔗 GitHub Pages deployment lyckad');
         console.log('🎉 IP address mismatch löst!');
+        console.log('🤖 AI-chat integrerad i HTML!');
+        
+        // Fokusera på input när sidan laddas
+        messageInput.focus();
     </script>
 </body>
 </html>
